@@ -61,8 +61,9 @@ abstract class View extends Component
     public array $linkedViews = [];
 
     /**
-     * Getters.
+     * All actions defined for this view.
      */
+    public array $actions = [];
 
     /**
      * Default listeners merged with custom listeners.
@@ -75,6 +76,11 @@ abstract class View extends Component
             $this->viewId . '-refresh' => 'refreshViewListener',
             'broadcast' => 'broadcastListener'
         ], $this->getViewListeners());
+    }
+
+    public function registerDefaultActions()
+    {
+        $this->registerAction('collection-order', \Livewire\ViewExtension\Actions\CollectionOrderAction::class);
     }
 
     /**
@@ -227,6 +233,8 @@ abstract class View extends Component
             $this->changes = new Changes($this->oldData, $this->data ?? [], $this);
         }
 
+        $this->registerDefaultActions();
+
         $this->onBoot();
     }
 
@@ -258,6 +266,8 @@ abstract class View extends Component
          */
         $this->data['data'] = array_merge($this->getSession(), $data ?? [], $settings);
 
+        $this->registerDefaultActions();
+
         if ($this->isVisible()) {
             $data = $this->onMount($context) ?? [];
         }
@@ -272,6 +282,8 @@ abstract class View extends Component
         $this->oldData = $this->data;
 
         $this->mountData = $this->data;
+
+        $this->registerDefaultActions();
     }
 
     /**
@@ -296,9 +308,30 @@ abstract class View extends Component
     /**
      * Excetues an action.
      */
-    public function action(Action $action): mixed
+    public function action(string $id, array $data = []): mixed
     {
-        return $action->handle($this);
+        $action = $this->actions[$id] ?? null;
+
+        if (empty($action)) {
+            return null;
+        }
+
+        $action = $action['class'];
+
+        $actionObject = eval("return new {$action};");
+
+        return $actionObject->handle($this, $data);
+    }
+
+    /**
+     * Register a Action for this view.
+     */
+    public function registerAction(string $id, string $class): void
+    {
+        $this->actions[$id] = [
+            'id' => $id,
+            'class' => $class,
+        ];
     }
 
     /**

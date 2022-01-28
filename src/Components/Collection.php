@@ -91,13 +91,13 @@ class Collection extends Component
         }
 
         if (empty($id)) {
-            return Order::parse($this->orders[0]);
+            return Order::fromArray($this->orders[0]);
         }
 
         foreach ($this->orders as $order) {
             if ($order['id'] == $id) {
 
-                return Order::parse($order);
+                return Order::fromArray($order);
             }
         }
 

@@ -4,7 +4,7 @@
     "authors": [
         {
             "name": "Faruk Ertürk",
-            "email": "ertuerk.faruk@gmail.com"
+            "email": "ertuerk.faruk.business@gmail.com"
         }
     ],
     "license": "MIT",
@@ -22,5 +22,7 @@
     },
     "config": {
         "sort-packages": true
-    }
+    },
+    "minimum-stability": "dev",
+    "prefer-stable": true
 }

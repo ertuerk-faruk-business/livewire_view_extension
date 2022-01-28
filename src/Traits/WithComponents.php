@@ -2,7 +2,6 @@
 
 namespace Livewire\ViewExtension\Traits;
 
-use Livewire\ViewExtension\Components\Action;
 use Livewire\ViewExtension\Components\Input;
 use Livewire\ViewExtension\Components\Calendar;
 use Livewire\ViewExtension\Components\Collection;
