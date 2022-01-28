@@ -1,0 +1,10 @@
+CREATE DATABASE IF NOT EXISTS lve_testing;
+GRANT ALL PRIVILEGES ON lve_testing.* TO 'lve'@'%';
+CREATE DATABASE IF NOT EXISTS lve_testing_test_1;
+GRANT ALL PRIVILEGES ON lve_testing_test_1.* TO 'lve'@'%';
+CREATE DATABASE IF NOT EXISTS lve_testing_test_2;
+GRANT ALL PRIVILEGES ON lve_testing_test_2.* TO 'lve'@'%';
+CREATE DATABASE IF NOT EXISTS lve_testing_test_3;
+GRANT ALL PRIVILEGES ON lve_testing_test_3.* TO 'lve'@'%';
+CREATE DATABASE IF NOT EXISTS lve_testing_test_4;
+GRANT ALL PRIVILEGES ON lve_testing_test_4.* TO 'lve'@'%';
