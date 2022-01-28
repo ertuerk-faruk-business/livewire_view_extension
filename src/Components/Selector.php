@@ -174,7 +174,11 @@ class Selector extends Component
 
     public function toQueryable(): string
     {
-        return implode('-', $this->value);
+        if (is_array($this->value)) {
+            return implode('-', $this->value); 
+        }
+
+        return implode('-', [$this->value]);
     }
 
     public function onArray(): array

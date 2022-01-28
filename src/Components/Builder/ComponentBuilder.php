@@ -29,7 +29,7 @@ abstract class ComponentBuilder
     {
         $this->view = $view;
         $this->id = $id;
-        $this->queryable = new Queryable($id);
+        $this->queryable = new Queryable($view, $id);
     }
 
     public function handleQueryable()

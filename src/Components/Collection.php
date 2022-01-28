@@ -147,6 +147,7 @@ class Collection extends Component
         return [
             'orders' => $this->orders,
             'query' => $this->query,
+            'currentOrder' => $this->currentOrder,
         ];
     }
 }

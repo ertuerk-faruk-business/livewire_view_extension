@@ -3,14 +3,11 @@
 namespace Livewire\ViewExtension;
 
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Session;
 use Illuminate\Validation\ValidationException;
 use Livewire\Component;
-use Livewire\Livewire;
 use Livewire\ViewExtension\Utilities\ValidateView;
-use Livewire\ViewExtension\Action;
+use Livewire\ViewExtension\Utilities\Browser;
 use Livewire\ViewExtension\Utilities\Changes;
-
 /**
  * This class is the starting point of each view.
  * Usually you don't have to change this class.
@@ -24,7 +21,12 @@ abstract class View extends Component
     /**
      * View id must be unique.
      */
-    public $viewId = 'view';
+    public string $viewId = 'view';
+
+    /**
+     * Parent View Id.
+     */
+    public string $parentViewId = '';
 
     /**
      * Values in data can be used in views.
@@ -49,7 +51,7 @@ abstract class View extends Component
     /**
      * Default visibility of view.
      */
-    public $defaultVisibility = true;
+    public bool $defaultVisibility = true;
 
     /**
      * Sessioned data.
@@ -72,6 +74,11 @@ abstract class View extends Component
     public string $authProvider = '';
 
     /**
+     * Saved Http Parameters.
+     */
+    public array $httpParameters = [];
+
+    /**
      * Default listeners merged with custom listeners.
      */
     public function getListeners()
@@ -80,6 +87,7 @@ abstract class View extends Component
             $this->viewId . '-show' => 'showViewListener',
             $this->viewId . '-hide' => 'hideViewListener',
             $this->viewId . '-refresh' => 'refreshViewListener',
+            $this->viewId . '-browser-history' => 'browserHistoryListener',
             'broadcast' => 'broadcastListener'
         ], $this->getViewListeners());
     }
@@ -88,6 +96,7 @@ abstract class View extends Component
     {
         $this->registerAction('collection-order', \Livewire\ViewExtension\Actions\CollectionOrderAction::class);
         $this->registerAction('toggle', \Livewire\ViewExtension\Actions\ToggleAction::class);
+        $this->registerAction('select', \Livewire\ViewExtension\Actions\SelectAction::class);
     }
 
     /**
@@ -115,7 +124,7 @@ abstract class View extends Component
     /** 
      * This method is called once immediately after the component is created.
      */
-    abstract public function onMount(mixed $context);
+    abstract public function onMount();
 
     /**
      * This method is called after the boot method.
@@ -247,6 +256,8 @@ abstract class View extends Component
         $this->registerDefaultActions();
 
         $this->onBoot();
+
+        $this->httpParameters = request()->all();
     }
 
     public function loadSession()
@@ -260,7 +271,7 @@ abstract class View extends Component
      * This function will be called once.
      * Setup view and parse data from onMount into data['data']
      */
-    public function mount(mixed $context = null)
+    public function mount(array $context = [])
     {
         $data = null;
 
@@ -274,12 +285,20 @@ abstract class View extends Component
         /**
          * Apply settings on view.
          */
-        $this->data['data'] = array_merge($this->getSession(), $data ?? [], $settings);
+        $this->data['data'] = array_merge($this->getSession(), $this->httpParameters, $data ?? [], $context, $settings);
 
         $this->registerDefaultActions();
 
         if ($this->isVisible()) {
-            $data = $this->onMount($context) ?? [];
+            $this->httpParameters = Browser::set($this);
+
+            $this->httpParameters = Browser::merge($this->httpParameters, $this->data['data']);
+
+            $this->data['data'] = array_merge($this->getSession(), $this->httpParameters, $data ?? [], $context, $settings);
+
+            $data = $this->onMount() ?? [];
+
+            $this->httpParameters = Browser::update($this);
         }
 
         $this->loadSession();
@@ -287,13 +306,21 @@ abstract class View extends Component
         /**
          * Re apply settings on view after mount.
          */
-        $this->data['data'] = array_merge($this->getSession(), $data ?? [], $settings);
+        $this->data['data'] = array_merge($this->getSession(), $this->httpParameters, $data ?? [], $context, $settings);
 
         $this->oldData = $this->data;
 
         $this->mountData = $this->data;
 
         $this->registerDefaultActions();
+
+        $httpView = $this->httpParameters['view'] ?? null;
+
+        if (! empty($httpView)) {
+            if ($httpView == $this->viewId) {
+                $this->showView($this->httpParameters['view']);
+            }
+        }
     }
 
     /**
@@ -491,6 +518,9 @@ abstract class View extends Component
     public function showView(mixed $viewId = null, array $value = [])
     {
         if (!empty($viewId) && $viewId != $this->viewId) {
+
+            $value['parent_view_id'] = $this->viewId;
+
             $this->emit($viewId . '-show', $value);
 
             return;
@@ -510,6 +540,11 @@ abstract class View extends Component
         $this->mount($value);
     }
 
+    public function browserHistoryListener()
+    {
+        $this->httpParameters = Browser::set($this);
+    }
+
     public function showViewListener(mixed $value = null)
     {
         if ($this->isVisible()) {
@@ -519,6 +554,8 @@ abstract class View extends Component
         if (!$this->onShowView($value)) {
             return;
         }
+
+        $this->parentViewId = $value['parent_view_id'];
 
         $this->data['data']['visibility'] = true;
         $this->data['data']['was_visible'] = true;
@@ -557,6 +594,8 @@ abstract class View extends Component
         if (!$this->onHideView($value)) {
             return;
         }
+
+        $this->emit($this->parentViewId . '-browser-history');
 
         $this->data['data']['visibility'] = false;
     }

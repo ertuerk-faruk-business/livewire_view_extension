@@ -9,6 +9,7 @@ use Livewire\ViewExtension\Components\Selector;
 use Livewire\ViewExtension\Components\Toggle;
 use Livewire\ViewExtension\Components\Component;
 use Livewire\ViewExtension\Components\Listener;
+use Livewire\ViewExtension\Utilities\Browser;
 use Livewire\ViewExtension\Utilities\Changes;
 use Livewire\ViewExtension\Utilities\UpdateBrowserHistory;
 
@@ -137,8 +138,7 @@ trait WithComponents
             }
         }
 
-        /** Updates Browser History */
-        new UpdateBrowserHistory($this);
+        $this->httpParameters = Browser::update($this);
     }
 
     public function withComponents(): bool

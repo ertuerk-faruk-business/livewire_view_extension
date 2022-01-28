@@ -2,16 +2,19 @@
 
 namespace Livewire\ViewExtension\Utilities;
 
+use Livewire\ViewExtension\View;
+
 class Queryable
 {
     public $value;
 
     public string $id;
 
-    public function __construct(string $id)
+    public function __construct(View $view, string $id)
     {
         $this->id = $id;
-        $this->value = request()->input($this->id);
+
+        $this->value = $view->httpParameters[$this->id] ?? null;
     }
 
     public function empty(): bool
