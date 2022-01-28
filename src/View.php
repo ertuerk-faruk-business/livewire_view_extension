@@ -2,6 +2,7 @@
 
 namespace Livewire\ViewExtension;
 
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Session;
 use Illuminate\Validation\ValidationException;
 use Livewire\Component;
@@ -64,6 +65,11 @@ abstract class View extends Component
      * All actions defined for this view.
      */
     public array $actions = [];
+
+    /**
+     * Auth Provider for current View
+     */
+    public string $authProvider = '';
 
     /**
      * Default listeners merged with custom listeners.
@@ -132,6 +138,10 @@ abstract class View extends Component
     public function hydrate()
     {
         parent::hydrate();
+
+        if (! empty($this->authProvider)) {
+            Auth::shouldUse($this->authProvider);
+        }
 
         $this->onHydrate();
     }
@@ -257,7 +267,6 @@ abstract class View extends Component
         $settings = [
             'visibility' => $this->getData('visibility') ?? $this->defaultVisibility,
             'was_visible' => $this->getData('was_visible') ?? false,
-            'loading' => $this->getData('loading') ?? false,
         ];
 
         $this->loadSession();
@@ -477,8 +486,7 @@ abstract class View extends Component
     }
 
     /**
-     * Show current view.
-     * Call mount with value before changing the visibility.
+     * Show current or other View.
      */
     public function showView(mixed $viewId = null, array $value = [])
     {
@@ -532,7 +540,7 @@ abstract class View extends Component
     }
 
     /**
-     * Hide current view.
+     * Hide current or other View.
      */
     public function hideView(?string $viewId = null, mixed $value = null)
     {
@@ -553,17 +561,71 @@ abstract class View extends Component
         $this->data['data']['visibility'] = false;
     }
 
-    public function isLoading(): bool
+    /**
+     * Save value to session as secret.
+     */
+    protected function saveSecret(string $key, mixed $value, ?string $viewId = null): void
     {
-        return $this->getData('loading') ?? false;
+        $viewId = $viewId ?? $this->viewId;
+
+        $data = session($viewId.'_secret') ?? [];
+
+        $data[$key] = $value;
+
+        session([
+            $viewId.'_secret' => $data,
+        ]);
     }
 
-    public function setLoading(bool $value)
+    protected function getSecret(string $key, ?string $viewId = null): mixed
     {
-        $this->data['data']['loading'] = $value;
+        $viewId = $viewId ?? $this->viewId;
+
+        $data = session($viewId.'_secret') ?? [];
+
+        if (empty($data)) {
+            return null;
+        }
+
+        return $data[$key] ?? null;
     }
 
-    public function broadcast(array $data, bool $refresh = true)
+    /**
+     * Delete Secret with Key. If null, all Secrets will be deleted.
+     */
+    protected function deleteSecret(?string $key = null, ?string $viewId = null): void
+    {
+        $viewId = $viewId ?? $this->viewId; 
+
+        if (empty($key)) {
+            session([
+                $viewId.'_secret' => null,
+            ]);
+        }
+
+        $data = session($viewId.'_secret') ?? [];
+
+        if (empty($data)) {
+            return;
+        }
+
+        $result = [];
+
+        foreach ($data as $valueKey => $value) {
+            if ($key != $valueKey) {
+                $result[$valueKey] = $value;
+            }
+        }
+
+        session([
+            $viewId.'_secret' => $data,
+        ]);
+    }
+
+    /**
+     * Send a Broadcast to other Views.
+     */
+    public function broadcast(array $data, bool $refresh = true): void
     {
         $payload = array_merge([
             'from' => $this->viewId,
@@ -579,11 +641,14 @@ abstract class View extends Component
             if ($data['refresh']) {
                 $this->refreshView();
             }
-        }
 
-        $this->onBroadcast($data);
+            $this->onBroadcast($data);
+        }
     }
 
+    /**
+     * Handle incoming broadcasts here.
+     */
     public function onBroadcast(array $data)
     {
     }

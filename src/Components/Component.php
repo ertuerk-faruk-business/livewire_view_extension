@@ -138,8 +138,10 @@ abstract class Component
                 $action = $listener['callback'] ?? null;
 
                 if (! empty($action)) {
-                    $this->view->$action($this->id);
-                } else {
+                    $this->view->$action($this);
+                }
+
+                if (! $listener['override'] ?? false) {
                     $this->onTriggerListener($type, $options);
                 }
             }

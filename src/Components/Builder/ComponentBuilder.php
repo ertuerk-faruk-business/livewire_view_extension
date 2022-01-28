@@ -85,16 +85,20 @@ abstract class ComponentBuilder
     public function listen(string $type, array $options = [
         'componentId' => null,
         'callback' => null,
+        'override' => false,
     ]): self
     {
         $componentId = $options['componentId'] ?? null;
         $callback = $options['callback'] ?? null;
+        $override = $options['override'] ?? false;
 
         foreach ($this->listeners as $listener) {
             if ($listener['type'] == $type) {
                 if ($listener['componentId'] ?? null == $componentId) {
                     if ($listener['callback'] ?? null == $callback) {
-                        return $this;
+                        if ($listener['override'] ?? false == $override) {
+                            return $this;
+                        }
                     }
                 }
             }
@@ -104,6 +108,7 @@ abstract class ComponentBuilder
             'type' => $type,
             'componentId' => $componentId,
             'callback' => $callback,
+            'override' => $override,
         ]);
 
         return $this;
