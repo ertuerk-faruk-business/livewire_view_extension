@@ -81,6 +81,7 @@ abstract class View extends Component
     public function registerDefaultActions()
     {
         $this->registerAction('collection-order', \Livewire\ViewExtension\Actions\CollectionOrderAction::class);
+        $this->registerAction('toggle', \Livewire\ViewExtension\Actions\ToggleAction::class);
     }
 
     /**

@@ -13,9 +13,15 @@ class UpdateBrowserHistory
 
         foreach($view->getAllComponents() as $component) {
             if ($component->queryable && $component->hasValue()) {
-                $value = $component->toQueryable();
-                if (! empty($value)) {
-                    $param[$component->id] = $value;
+                if (is_bool($component->value)) {
+                    $param[$component->id] = $component->toQueryable();
+                } elseif (is_numeric($component->value)) {
+                    $param[$component->id] = $component->toQueryable();
+                } else {
+                    $value = $component->toQueryable();
+                    if (! empty($value)) {
+                        $param[$component->id] = $value;
+                    }
                 }
             }
         }

@@ -57,6 +57,13 @@ class Toggle extends Component
         return $this;
     }
 
+    public function toggle(): self
+    {
+        $this->update($this->isOn() ? false : true);
+
+        return $this;
+    }
+
     public function toQueryable(): string
     {
         return $this->isOn() ? '1' : '0';
