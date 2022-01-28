@@ -1,0 +1,26 @@
+{
+    "name": "ertuerk-faruk-business/livewire-view-extension",
+    "description": "Laravel Livewire View Extension",
+    "authors": [
+        {
+            "name": "Faruk Ertürk",
+            "email": "ertuerk.faruk@gmail.com"
+        }
+    ],
+    "license": "MIT",
+    "require": {
+        "php": "^8.0",
+        "livewire/livewire": "^2.8.2"
+    },
+    "require-dev": {
+        "phpunit/phpunit": "^9.3"
+    },
+    "autoload": {
+        "psr-4": {
+            "Livewire\\ViewExtension\\": "src"
+        }
+    },
+    "config": {
+        "sort-packages": true
+    }
+}
