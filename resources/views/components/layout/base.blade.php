@@ -29,6 +29,5 @@
         @stack('scripts')
         {{ $slot }}
         <script src="{{ mix('/js/site.js') }}"></script>
-        <script src="{{ mix('/js/slider.js') }}"></script>
     </body>
 </html>

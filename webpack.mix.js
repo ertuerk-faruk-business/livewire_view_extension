@@ -11,9 +11,7 @@ const mix = require('laravel-mix');
  |
  */
 
-mix.js('resources/js/site.js', 'public/js/site.js')
-mix.js('resources/js/lve.js', 'public/js/lve.js')
-mix.js('resources/js/slider.js', 'public/js/slider.js')
+mix.js('resources/js/*', 'public/js/site.js')
 
 mix.postCss('resources/css/tailwind.css', 'public/css/site.css', [
     require('tailwindcss'),
