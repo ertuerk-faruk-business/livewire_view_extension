@@ -20,6 +20,6 @@ class UpdateBrowserHistory
             }
         }
 
-        $view->emit('lveUrlChanges', http_build_query($param));
+        $view->emit('livewire_view_extension_url_changes', http_build_query($param));
     }
 }
