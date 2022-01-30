@@ -2,6 +2,9 @@
 
 namespace Livewire\ViewExtension\Utilities;
 
+use Livewire\ViewExtension\Utilities\Browser\ClearBrowserHistory;
+use Livewire\ViewExtension\Utilities\Browser\SetBrowserHistory;
+use Livewire\ViewExtension\Utilities\Browser\UpdateBrowserHistory;
 use Livewire\ViewExtension\View;
 
 class Browser

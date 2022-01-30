@@ -36,7 +36,11 @@ class CollectionBuilder extends ComponentBuilder
         }
 
         foreach ($orders as $order) {
-            array_push($result, $order->toArray());
+            if (! is_array($order)) {
+                array_push($result, $order->toArray());
+            } else {
+                array_push($result, $order);
+            }
         }
 
         $this->orders = $result;

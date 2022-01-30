@@ -1,6 +1,6 @@
 <?php
 
-namespace Livewire\ViewExtension\Utilities;
+namespace Livewire\ViewExtension\Utilities\Browser;
 
 use Livewire\ViewExtension\View;
 

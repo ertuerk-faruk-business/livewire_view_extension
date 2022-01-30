@@ -64,11 +64,6 @@ abstract class View extends Component
     public array $linkedViews = [];
 
     /**
-     * All actions defined for this view.
-     */
-    public array $actions = [];
-
-    /**
      * Auth Provider for current View
      */
     public string $authProvider = '';
@@ -81,7 +76,7 @@ abstract class View extends Component
     /**
      * Default listeners merged with custom listeners.
      */
-    public function getListeners()
+    protected function getListeners()
     {
         return array_merge([
             $this->viewId . '-show' => 'showViewListener',
@@ -92,11 +87,16 @@ abstract class View extends Component
         ], $this->getViewListeners());
     }
 
-    public function registerDefaultActions()
+    /**
+     * Default actions.
+     */
+    protected function getActions(): array
     {
-        $this->registerAction('collection-order', \Livewire\ViewExtension\Actions\CollectionOrderAction::class);
-        $this->registerAction('toggle', \Livewire\ViewExtension\Actions\ToggleAction::class);
-        $this->registerAction('select', \Livewire\ViewExtension\Actions\SelectAction::class);
+        return array_merge([
+            'collection-order' => \Livewire\ViewExtension\Actions\CollectionOrderAction::class,
+            'toggle' => \Livewire\ViewExtension\Actions\ToggleAction::class,
+            'select' => \Livewire\ViewExtension\Actions\SelectAction::class,
+        ], $this->getViewActions());
     }
 
     /**
@@ -161,6 +161,14 @@ abstract class View extends Component
      * Your listeners will be merged with the default listeners.
      */
     public function getViewListeners(): array
+    {
+        return [];
+    }
+
+    /**
+     * Define your listeners here.
+     */
+    public function getViewActions(): array
     {
         return [];
     }
@@ -253,8 +261,6 @@ abstract class View extends Component
             $this->changes = new Changes($this->oldData, $this->data ?? [], $this);
         }
 
-        $this->registerDefaultActions();
-
         $this->onBoot();
 
         $this->httpParameters = request()->all();
@@ -287,13 +293,14 @@ abstract class View extends Component
          */
         $this->data['data'] = array_merge($this->getSession(), $this->httpParameters, $data ?? [], $context, $settings);
 
-        $this->registerDefaultActions();
-
         if ($this->isVisible()) {
             $this->httpParameters = Browser::set($this);
 
             $this->httpParameters = Browser::merge($this->httpParameters, $this->data['data']);
 
+            /**
+            * Re apply with http parameters.
+            */
             $this->data['data'] = array_merge($this->getSession(), $this->httpParameters, $data ?? [], $context, $settings);
 
             $data = $this->onMount() ?? [];
@@ -311,8 +318,6 @@ abstract class View extends Component
         $this->oldData = $this->data;
 
         $this->mountData = $this->data;
-
-        $this->registerDefaultActions();
 
         $httpView = $this->httpParameters['view'] ?? null;
 
@@ -347,7 +352,7 @@ abstract class View extends Component
      */
     public function action(string $id, array $data = []): mixed
     {
-        $action = $this->actions[$id] ?? null;
+        $action = $this->getActions()[$id] ?? null;
 
         if (empty($action)) {
             return null;
@@ -358,17 +363,6 @@ abstract class View extends Component
         $actionObject = eval("return new {$action};");
 
         return $actionObject->handle($this, $data);
-    }
-
-    /**
-     * Register a Action for this view.
-     */
-    public function registerAction(string $id, string $class): void
-    {
-        $this->actions[$id] = [
-            'id' => $id,
-            'class' => $class,
-        ];
     }
 
     /**
