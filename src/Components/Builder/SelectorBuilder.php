@@ -36,12 +36,12 @@ class SelectorBuilder extends ComponentBuilder
         return $this;
     }
 
-    public function handleStorable()
+    public function handleStorable(): void
     {
         $this->value = $this->view->getData($this->id, $this->value);
     }
 
-    public function handleQueryable()
+    public function handleQueryable(): void
     {
         if ($this->queryable->isArray()) {
             $this->value = $this->queryable->getArray();

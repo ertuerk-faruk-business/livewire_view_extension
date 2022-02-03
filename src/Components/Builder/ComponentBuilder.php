@@ -32,12 +32,12 @@ abstract class ComponentBuilder
         $this->queryable = new Queryable($view, $id);
     }
 
-    public function handleQueryable()
+    public function handleQueryable(): void
     {
         // Implement your query handle here.
     }
 
-    public function handleStorable()
+    public function handleStorable(): void
     {
         // Implement your store handle here.
     }
@@ -126,7 +126,7 @@ abstract class ComponentBuilder
     }
 
     /** Enables store ability. */
-    public function storable()
+    public function storable(): self
     {
         $this->isStorable = true;
 
@@ -134,7 +134,7 @@ abstract class ComponentBuilder
     }
 
      /** Enables query ability. */
-    public function queryable()
+    public function queryable(): self
     {
         $this->isQueryable = true;
 

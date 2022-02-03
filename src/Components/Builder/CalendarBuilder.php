@@ -16,12 +16,12 @@ class CalendarBuilder extends ComponentBuilder
         return $this->view->register($calendar);
     }
 
-    public function handleStorable()
+    public function handleStorable(): void
     {
         $this->value = $this->view->getData($this->id, $this->value);
     }
 
-    public function handleQueryable()
+    public function handleQueryable(): void
     {
         $values = [];
         if ($this->queryable->isArray()) {

@@ -50,7 +50,7 @@ class CollectionBuilder extends ComponentBuilder
         return $this;
     }
 
-    public function handleStorable()
+    public function handleStorable(): void
     {
         $this->value = $this->view->getData($this->id, $this->value);
     }

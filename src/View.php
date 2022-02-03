@@ -49,11 +49,6 @@ abstract class View extends Component
     public array $cachedData = [];
 
     /**
-     * Default visibility of view.
-     */
-    public bool $defaultVisibility = true;
-
-    /**
      * Sessioned data.
      */
     public array $sessionedData = [];
@@ -72,6 +67,14 @@ abstract class View extends Component
      * Saved Http Parameters.
      */
     public array $httpParameters = [];
+
+    /**
+     * Set default visibility of this view.
+     */
+    public function getDefaultVisibility(): bool
+    {
+        return true;
+    }
 
     /**
      * Default listeners merged with custom listeners.
@@ -237,7 +240,7 @@ abstract class View extends Component
      */
     public function updatedData()
     {
-        if (!$this->validateView($this->rules())) {
+        if (!$this->validateView()) {
             return;
         }
 
@@ -282,7 +285,7 @@ abstract class View extends Component
         $data = null;
 
         $settings = [
-            'visibility' => $this->getData('visibility') ?? $this->defaultVisibility,
+            'visibility' => $this->getData('visibility') ?? $this->getDefaultVisibility(),
             'was_visible' => $this->getData('was_visible') ?? false,
         ];
 
@@ -357,8 +360,6 @@ abstract class View extends Component
         if (empty($action)) {
             return null;
         }
-
-        $action = $action['class'];
 
         $actionObject = eval("return new {$action};");
 
@@ -439,7 +440,7 @@ abstract class View extends Component
                 return $default;
             }
 
-            return $this->getSessioned($key);
+            return $this->getSession($key);
         }
 
         return $this->data['data'][$key];
@@ -462,19 +463,11 @@ abstract class View extends Component
     }
 
     /**
-     * Get data from session.
-     */
-    public function getSessioned(string $key): mixed
-    {
-        return $this->sessionedData[$key];
-    }
-
-    /**
      * Get session as full array.
      */
-    public function getSession(): array
+    public function getSession(?string $key = null): array
     {
-        return $this->sessionedData;
+        return empty($key) ? $this->sessionedData : $this->sessionedData[$key];
     }
 
     /**

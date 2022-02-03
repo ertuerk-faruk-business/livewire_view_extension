@@ -19,12 +19,12 @@ class ToggleBuilder extends ComponentBuilder
         return $this->view->register($toggle);
     }
 
-    public function handleStorable()
+    public function handleStorable(): void
     {
         $this->value = $this->view->getData($this->id, $this->value);
     }
 
-    public function handleQueryable()
+    public function handleQueryable(): void
     {
         $this->value = $this->queryable->getBool();
     }
