@@ -77,6 +77,14 @@ abstract class View extends Component
     }
 
     /**
+     * Component can change Browser.
+     */
+    public function canChangeBrowser(): bool
+    {
+        return true;
+    }
+
+    /**
      * Default listeners merged with custom listeners.
      */
     protected function getListeners()
@@ -377,7 +385,9 @@ abstract class View extends Component
             return;
         }
 
-        $this->onRefreshView($value);
+        if ($this->isVisible()) {
+            $this->onRefreshView($value);
+        }
     }
 
     public function refreshViewListener(mixed $value = null)
@@ -668,7 +678,9 @@ abstract class View extends Component
                 $this->refreshView();
             }
 
-            $this->onBroadcast($data);
+            if ($this->isVisible()) {
+                $this->onBroadcast($data);
+            }
         }
     }
 

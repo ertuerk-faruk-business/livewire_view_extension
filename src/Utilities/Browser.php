@@ -11,6 +11,10 @@ class Browser
 {
     public static function set(View $view): array
     {
+        if (! $view->canChangeBrowser()) {
+            return [];
+        }
+
         $setBrowserHistory = new SetBrowserHistory($view);
 
         return $setBrowserHistory->parameters;
@@ -18,6 +22,10 @@ class Browser
 
     public static function update(View $view): array
     {
+        if (! $view->canChangeBrowser()) {
+            return [];
+        }
+
         $setBrowserHistory = new UpdateBrowserHistory($view);
 
         return $setBrowserHistory->parameters;
@@ -25,6 +33,10 @@ class Browser
 
     public static function clear(View $view)
     {
+        if (! $view->canChangeBrowser()) {
+            return;
+        }
+
         new ClearBrowserHistory($view);
     }
 
