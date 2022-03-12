@@ -113,6 +113,10 @@ trait WithComponents
         }
 
         foreach ($this->data['components'] as $key => $value) {
+            if (empty($value['class'] ?? null)) {
+                continue;
+            }
+
             $component = $this->getComponent($key, $value['class']);
             if (!empty($component)) {
                 array_push($result, $component);
